@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const BASE_URL   = process.env.API_URL    || "http://localhost:5000";
+const BASE_URL   = process.env.API_URL;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
