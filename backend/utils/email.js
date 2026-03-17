@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const BASE_URL   = process.env.API_URL;
+const BASE_URL   = process.env.VITE_API_URL;
 const CLIENT_URL = process.env.CLIENT_URL;
 
 // ── Inline SVG icons ──────────────────────────────────────────────────────────
