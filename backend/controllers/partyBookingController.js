@@ -125,7 +125,7 @@ const deletePartyBooking = async (req, res) => {
 
 const confirmPage = (type, message) => {
   const isSuccess = type === "success";
-  const CLIENT    = process.env.CLIENT_URL || "http://localhost:5173";
+  const CLIENT    = process.env.CLIENT_URL;
 
   const iconCheck = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="${isSuccess ? "#4ade80" : "#f87171"}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
   const iconX     = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;

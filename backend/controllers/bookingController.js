@@ -126,7 +126,7 @@ const deleteBooking = async (req, res) => {
 // ── Confirmation page ─────────────────────────────────────────────────────────
 const confirmPage = (type, message) => {
   const isSuccess = type === "success";
-  const CLIENT    = process.env.CLIENT_URL || "http://localhost:5173";
+  const CLIENT    = process.env.CLIENT_URL;
 
   // Inline SVGs — same style as Lucide React icons used on the website
   const iconCheck = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="${isSuccess ? "#4ade80" : "#f87171"}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
