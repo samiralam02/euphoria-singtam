@@ -1,23 +1,19 @@
-const nodemailer = require("nodemailer");
+const Brevo = require("@getbrevo/brevo");
 
-// Brevo SMTP — works on Render free tier, 300 emails/day free
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_PASS,
-  },
-});
+// Brevo HTTP API — uses HTTPS so Render can't block it
+const apiInstance = new Brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
 
 const sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
-    from: `"Euphoria Singtam" <${process.env.BREVO_USER}>`,
-    to,
-    subject,
-    html,
-  });
+  const sendSmtpEmail = new Brevo.SendSmtpEmail();
+  sendSmtpEmail.subject  = subject;
+  sendSmtpEmail.htmlContent = html;
+  sendSmtpEmail.sender   = { name: "Euphoria Singtam", email: process.env.BREVO_SENDER_EMAIL };
+  sendSmtpEmail.to       = [{ email: to }];
+  await apiInstance.sendTransacEmail(sendSmtpEmail);
 };
 
 const BASE_URL   = process.env.API_URL;
