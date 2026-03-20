@@ -35,24 +35,16 @@ const createPartyBooking = async (req, res) => {
       confirmTokenExp,
     });
 
-    try {
-      await sendPartyConfirmation({
-        to: email,
-        name,
-        eventType,
-        date,
-        time,
-        guests: numberOfGuests,
-        token: confirmToken,
-      });
-    } catch (emailErr) {
-      console.error("Email send failed:", emailErr.message);
-    }
-
     res.status(201).json({
       success: true,
       message: "Almost done! Check your email and click the confirmation link to complete your event request.",
     });
+
+    // Fire-and-forget — send email after responding
+    sendPartyConfirmation({
+      to: email, name, eventType, date, time, guests: numberOfGuests, token: confirmToken,
+    }).catch(err => console.error("Email send failed:", err.message));
+
   } catch (error) {
     console.error("Create party booking error:", error);
     res.status(500).json({ message: "Server error. Please try again." });
@@ -125,7 +117,7 @@ const deletePartyBooking = async (req, res) => {
 
 const confirmPage = (type, message) => {
   const isSuccess = type === "success";
-  const CLIENT    = process.env.CLIENT_URL;
+  const CLIENT    = process.env.CLIENT_URL || "http://localhost:5173";
 
   const iconCheck = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="${isSuccess ? "#4ade80" : "#f87171"}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
   const iconX     = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
@@ -204,11 +196,13 @@ const confirmPage = (type, message) => {
 </head>
 <body>
   <div class="card">
-    <div class="logo-ring">
-      <div class="logo-ring-inner">
-        <img src="https://i.ibb.co/VcTDDhPR/eulogo.png" alt="Euphoria Singtam logo"/>
+    <a href="${CLIENT}" style="text-decoration:none;display:inline-block">
+      <div class="logo-ring">
+        <div class="logo-ring-inner">
+          <img src="https://i.ibb.co/VcTDDhPR/eulogo.png" alt="Euphoria Singtam logo"/>
+        </div>
       </div>
-    </div>
+    </a>
     <div class="brand">Euphoria Singtam</div>
     <div class="brand-sub">Premium Bar &amp; Restaurant &nbsp;·&nbsp; Singtam, Sikkim</div>
     <div class="divider"></div>

@@ -3,12 +3,10 @@ const Booking = require("../models/Booking");
 const { sendBookingConfirmation } = require("../utils/email");
 const { validateEmail } = require("../utils/emailValidator");
 
-// POST /api/bookings — public
 const createBooking = async (req, res) => {
   try {
     const { name, phone, email, numberOfGuests, date, time, specialRequest, _hp } = req.body;
 
-    // Honeypot check — bots fill hidden fields, humans don't
     if (_hp && _hp.trim() !== "") {
       return res.status(200).json({ success: true, message: "Booking received." }); // silent reject
     }
@@ -35,24 +33,17 @@ const createBooking = async (req, res) => {
       confirmTokenExp,
     });
 
-    // Send confirmation email (non-blocking — don't fail if email fails)
-    try {
-      await sendBookingConfirmation({
-        to: email,
-        name,
-        date,
-        time,
-        guests: numberOfGuests,
-        token: confirmToken,
-      });
-    } catch (emailErr) {
-      console.error("Email send failed:", emailErr.message);
-    }
-
+    // Respond immediately — don't wait for email
     res.status(201).json({
       success: true,
       message: "Almost done! Check your email and click the confirmation link to complete your booking.",
     });
+
+    // Fire-and-forget — send email after responding so user isn't waiting
+    sendBookingConfirmation({
+      to: email, name, date, time, guests: numberOfGuests, token: confirmToken,
+    }).catch(err => console.error("Email send failed:", err.message));
+
   } catch (error) {
     console.error("Create booking error:", error);
     res.status(500).json({ message: "Server error. Please try again." });
@@ -126,7 +117,7 @@ const deleteBooking = async (req, res) => {
 // ── Confirmation page ─────────────────────────────────────────────────────────
 const confirmPage = (type, message) => {
   const isSuccess = type === "success";
-  const CLIENT    = process.env.CLIENT_URL;
+  const CLIENT    = process.env.CLIENT_URL || "http://localhost:5173";
 
   // Inline SVGs — same style as Lucide React icons used on the website
   const iconCheck = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="${isSuccess ? "#4ade80" : "#f87171"}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;

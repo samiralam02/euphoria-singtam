@@ -1,22 +1,24 @@
 const nodemailer = require("nodemailer");
-const dns = require("dns");
 
-// Force IPv4 — Render free tier blocks IPv6 outbound connections
-dns.setDefaultResultOrder("ipv4first");
-
+// Brevo SMTP — works on Render free tier, 300 emails/day free
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: "smtp-relay.brevo.com",
   port: 587,
   secure: false,
-  family: 4,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS,
   },
 });
+
+const sendEmail = async ({ to, subject, html }) => {
+  await transporter.sendMail({
+    from: `"Euphoria Singtam" <${process.env.BREVO_USER}>`,
+    to,
+    subject,
+    html,
+  });
+};
 
 const BASE_URL   = process.env.API_URL;
 const CLIENT_URL = process.env.CLIENT_URL;
@@ -175,10 +177,9 @@ const sendBookingConfirmation = async ({ to, name, date, time, guests, token }) 
       </p>
     </div>`;
 
-  await transporter.sendMail({
-    from: `"Euphoria Singtam" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to,
-    subject: `Confirm your table reservation — Euphoria Singtam`,
+    subject: "Confirm your table reservation — Euphoria Singtam",
     html: emailWrapper(body),
   });
 };
@@ -247,8 +248,7 @@ const sendPartyConfirmation = async ({ to, name, eventType, date, time, guests, 
       </p>
     </div>`;
 
-  await transporter.sendMail({
-    from: `"Euphoria Singtam" <${process.env.EMAIL_USER}>`,
+  await sendEmail({
     to,
     subject: `Confirm your ${eventType} at Euphoria Singtam`,
     html: emailWrapper(body),
